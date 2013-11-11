@@ -1,0 +1,3 @@
+# We need stuff to be CRLF... because Windows!
+funcdefs.txt text eol=crlf
+faucet-http.gml text eol=crlf
