@@ -35,10 +35,11 @@ first might be a good idea.
 
 Download here: https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension/releases
 
-However, **DON'T USE v1.0**. The names of all API functions will change soon,
-and this library isn't very polished yet. There is a lack of proper
-documentation, too, so you will likely make mistakes when using it. v1.1 will be
-better, hopefully ;)
+However, **DON'T USE FAUCET HTTP YET**. The v1.x is deceptive - the API is in
+flux and this is only online just now for GG2 dogfooding. There is a lack of
+proper documentation, too, so you will likely make mistakes when using it.
+
+Hopefully, there will be a "stable" release sometime soon. :)
 
 Creating the .gex
 -----------------
