@@ -1,14 +1,14 @@
-#define _httpInit
-// Internal function - creates httpClient object type
-// void _httpInit()
+#define __fcthttp_init
+// Internal function - creates HttpClient object type
+// void __fcthttp_init()
 // Called by GM when extension loaded
 
 global.__HttpClient = object_add();
 object_set_persistent(global.__HttpClient, true);
 
-#define httpParseUrl
+#define fcthttp_parse_url
 // Parses a URL into its components
-// real httpParseUrl(string url)
+// real fcthttp_parse_url(string url)
 
 // Return value is a ds_map containing keys for the different URL parts: (or -1 on failure)
 // "url" - the URL which was passed in
@@ -120,14 +120,14 @@ else
 ds_map_destroy(map);
 return -1;
 
-#define httpResolveUrl
+#define fcthttp_resolve_url
 // Takes a base URL and a URL reference and applies it to the base URL
 // Returns resulting absolute URL
-// string httpResolveUrl(string baseUrl, string refUrl)
+// string fcthttp_resolve_url(string baseUrl, string refUrl)
 
 // Return value is a string containing the new absolute URL, or "" on failure
 
-// Works only for restricted URL syntax as understood by by httpResolveUrl
+// Works only for restricted URL syntax as understood by by fcthttp_resolve_url
 // The sole restriction of which is that only scheme://authority/path URLs work
 // This notably excludes file: URLs which lack the authority component
 
@@ -138,7 +138,7 @@ return -1;
 //                    / path-absolute
 //                    / path-noscheme
 //                    / path-empty
-// However httpResolveUrl does *not* deal with fragments
+// However fcthttp_resolve_url does *not* deal with fragments
 
 // Algorithm based on that of section 5.2.2 of RFC 3986
 
@@ -148,13 +148,13 @@ refUrl = argument1;
 
 // Parse base URL
 var urlParts;
-urlParts = httpParseUrl(baseUrl);
+urlParts = fcthttp_parse_url(baseUrl);
 if (urlParts == -1)
     return '';
 
 // Try to parse reference URL
 var refUrlParts, canParseRefUrl;
-refUrlParts = httpParseUrl(refUrl);
+refUrlParts = fcthttp_parse_url(refUrl);
 canParseRefUrl = (refUrlParts != -1);
 if (refUrlParts != -1)
     ds_map_destroy(refUrlParts);
@@ -183,7 +183,7 @@ else if (((string_char_at(refUrl, 1) == '/' and string_length(refUrl) > 1) or re
     // No query
     if (queryPos == 0)
     {
-        refUrl = httpResolvePath(ds_map_find_value(urlParts, 'abs_path'), refUrl);
+        refUrl = fcthttp_resolve_path(ds_map_find_value(urlParts, 'abs_path'), refUrl);
         ds_map_replace(urlParts, 'abs_path', refUrl);
         if (ds_map_exists(urlParts, 'query'))
             ds_map_delete(urlParts, 'query');
@@ -194,23 +194,23 @@ else if (((string_char_at(refUrl, 1) == '/' and string_length(refUrl) > 1) or re
         var path, query;
         path = string_copy(refUrl, 1, queryPos - 1);
         query = string_copy(refUrl, queryPos + 1, string_length(relUrl) - queryPos);
-        path = httpResolvePath(ds_map_find_value(urlParts, 'abs_path'), path);
+        path = fcthttp_resolve_path(ds_map_find_value(urlParts, 'abs_path'), path);
         ds_map_replace(urlParts, 'abs_path', path);
         if (ds_map_exists(urlParts, 'query'))
             ds_map_replace(urlParts, 'query', query);
         else
             ds_map_add(urlParts, 'query', query);
     }
-    result = httpConstructUrl(urlParts);
+    result = fcthttp_construct_url(urlParts);
 }
 
 ds_map_destroy(urlParts);
 return result;
 
-#define httpResolvePath
+#define fcthttp_resolve_path
 // Takes a base path and a path reference and applies it to the base path
 // Returns resulting absolute path
-// string httpResolvePath(string basePath, string refPath)
+// string fcthttp_resolve_path(string basePath, string refPath)
 
 // Return value is a string containing the new absolute path
 
@@ -304,9 +304,9 @@ for (i = 0; i < ds_list_size(parts); i += 1)
 ds_map_destroy(parts);
 return path;
 
-#define httpParseHex
+#define fcthttp_parse_hex
 // Takes a lowercase hexadecimal string and returns its integer value
-// real httpParseHex(string hexString)
+// real fcthttp_parse_hex(string hexString)
 
 // Return value is the whole number value (or -1 if invalid)
 // Only works for whole numbers (non-fractional numbers >= 0) and lowercase hex
@@ -330,9 +330,9 @@ for (i = 1; i <= string_length(hexString); i += 1) {
 
 return result;
 
-#define httpConstructUrl
-// Constructs an URL from its components (as httpParseUrl would return)
-// string httpConstructUrl(real parts)
+#define fcthttp_construct_url
+// Constructs an URL from its components (as fcthttp_parse_url would return)
+// string fcthttp_construct_url(real parts)
 
 // Return value is the string of the constructed URL
 // Keys of parts map:
@@ -370,14 +370,15 @@ if (ds_map_exists(parts, 'abs_path'))
 
 return url;
 
-#define httpGet
+#define fcthttp_get
 // Makes a GET HTTP request
-// real httpGet(string url, real headers)
+// real fcthttp_get(string url, real headers)
 
 // url - URL to send GET request to
 // headers - ds_map of extra headers to send, -1 if none
 
-// Return value is an HttpClient instance that can be passed to httpRequestStatus etc.
+// Return value is an HttpClient instance that can be passed to
+// fct_http_request_status etc.
 // (errors on failure to parse URL)
 
 var url, headers, client;
@@ -386,12 +387,12 @@ url = argument0;
 headers = argument1;
 
 client = instance_create(0, 0, global.__HttpClient);
-_httpPrepareRequest(client, url, headers);
+__fcthttp_prepare_request(client, url, headers);
 return client;
 
-#define _httpPrepareRequest
+#define __fcthttp_prepare_request
 // Internal function - prepares request
-// void httpRequestGet(real client, string url, real headers)
+// void __fcthttp_prepare_request(real client, string url, real headers)
 
 // client - HttpClient object to prepare
 // url - URL to send GET request to
@@ -404,7 +405,7 @@ url = argument1;
 headers = argument2;
 
 var parsed;
-parsed = httpParseUrl(url);
+parsed = fcthttp_parse_url(url);
 
 if (parsed == -1)
     show_error("Error when making HTTP GET request - can't parse URL: " + url, true);
@@ -489,9 +490,9 @@ with (client)
     ds_map_destroy(parsed);
 }
 
-#define _httpParseHeader
+#define __fcthttp_parse_header
 // Internal function - parses header
-// real _httpParseHeader(string linebuf, real line)
+// real __fcthttp_parse_header(string linebuf, real line)
 // Returns false if it errored (caller should return and destroy)
 
 var linebuf, line;
@@ -546,7 +547,7 @@ if (string_lower(headerName) == 'content-length')
 
 return true;
 
-#define _httpClientDestroy
+#define __fcthttp_client_destroy
 // Clears up contents of an httpClient prior to destruction or after error
 
 if (!destroyed) {
@@ -556,9 +557,9 @@ if (!destroyed) {
 }
 destroyed = true;
 
-#define httpRequestStep
+#define fcthttp_request_step
 // Steps the HTTP request (you need to call this each step or so)
-// void httpRequestStep(real client)
+// void fcthttp_request_step(real client)
 
 // client - HttpClient object
 
@@ -575,7 +576,7 @@ with (client)
     {
         errored = true;
         error = "Socket error: " + socket_error(socket);
-        return _httpClientDestroy();
+        return __fcthttp_client_destroy();
     }
     
     var available;
@@ -610,7 +611,7 @@ with (client)
                     {
                         errored = true;
                         error = "No space in first line of response";
-                        return _httpClientDestroy();
+                        return __fcthttp_client_destroy();
                     }
                     httpVer = string_copy(linebuf, 1, spacePos);
                     linebuf = string_copy(linebuf, spacePos + 1, string_length(linebuf) - spacePos);
@@ -620,7 +621,7 @@ with (client)
                     {
                         errored = true;
                         error = "No second space in first line of response";
-                        return _httpClientDestroy();
+                        return __fcthttp_client_destroy();
                     }
                     statusCode = real(string_copy(linebuf, 1, spacePos));
                     reasonPhrase = string_copy(linebuf, spacePos + 1, string_length(linebuf) - spacePos);
@@ -640,8 +641,8 @@ with (client)
                     // Header
                     else
                     {
-                        if (!_httpParseHeader(linebuf, line))
-                            return _httpClientDestroy();
+                        if (!__fcthttp_parse_header(linebuf, line))
+                            return __fcthttp_client_destroy();
                     }
                 }
     
@@ -705,7 +706,7 @@ with (client)
                                 errored = true;
                                 error = 'header of chunk in chunked transfer did not end in CRLF';
                                 buffer_destroy(actualResponseBody);
-                                return _httpClientDestroy();
+                                return __fcthttp_client_destroy();
                             }
                             // chunk-size is empty - something's up!
                             if (chunkSize == '')
@@ -713,16 +714,16 @@ with (client)
                                 errored = true;
                                 error = 'empty chunk-size in a chunked transfer';
                                 buffer_destroy(actualResponseBody);
-                                return _httpClientDestroy();
+                                return __fcthttp_client_destroy();
                             }
-                            chunkSize = httpParseHex(chunkSize);
+                            chunkSize = fcthttp_parse_hex(chunkSize);
                             // Parsing of size failed - not hex?
                             if (chunkSize == -1)
                             {
                                 errored = true;
                                 error = 'chunk-size was not hexadecimal in a chunked transfer';
                                 buffer_destroy(actualResponseBody);
-                                return _httpClientDestroy();
+                                return __fcthttp_client_destroy();
                             }
                             // Is the chunk bigger than the remaining response?
                             if (chunkSize + 2 > buffer_bytes_left(responseBody))
@@ -730,7 +731,7 @@ with (client)
                                 errored = true;
                                 error = 'chunk-size was greater than remaining data in a chunked transfer';
                                 buffer_destroy(actualResponseBody);
-                                return _httpClientDestroy();
+                                return __fcthttp_client_destroy();
                             }
                             // OK, everything's good, read the chunk
                             write_buffer_part(actualResponseBody, responseBody, chunkSize);
@@ -740,14 +741,14 @@ with (client)
                             {
                                 errored = true;
                                 error = 'chunk did not end in CRLF in a chunked transfer';
-                                return _httpClientDestroy();
+                                return __fcthttp_client_destroy();
                             }
                         }
                         else
                         {
                             errored = true;
                             error = 'did not find CR after reading chunk header in a chunked transfer, Faucet HTTP bug?';
-                            return _httpClientDestroy();
+                            return __fcthttp_client_destroy();
                         }
                         // if the chunk size is zero, then it was the last chunk
                         if (chunkSize == 0
@@ -774,10 +775,10 @@ with (client)
                                 {
                                     errored = true;
                                     error = 'trailer header did not end in CRLF in a chunked transfer';
-                                    return _httpClientDestroy();
+                                    return __fcthttp_client_destroy();
                                 }
-                                if (!_httpParseHeader(linebuf, line))
-                                    return _httpClientDestroy();
+                                if (!__fcthttp_parse_header(linebuf, line))
+                                    return __fcthttp_client_destroy();
                                 line += 1;
                             }
                         }
@@ -790,7 +791,7 @@ with (client)
                 {
                     errored = true;
                     error = 'Unsupported Transfer-Encoding: "' + ds_map_find_value(responseHaders, 'transfer-encoding') + '"';
-                    return _httpClientDestroy();
+                    return __fcthttp_client_destroy();
                 }
             }
             else if (responseBodySize != -1)
@@ -799,7 +800,7 @@ with (client)
                 {
                     errored = true;
                     error = "Unexpected EOF, response body size is less than expected";
-                    return _httpClientDestroy();
+                    return __fcthttp_client_destroy();
                 }
             }
             // 301 Moved Permanently/302 Found/303 See Other/307 Moved Temporarily
@@ -809,19 +810,19 @@ with (client)
                 {
                     var location, resolved;
                     location = ds_map_find_value(responseHeaders, 'location');
-                    resolved = httpResolveUrl(requestUrl, location);
+                    resolved = fcthttp_resolve_url(requestUrl, location);
                     // Resolving URL didn't fail and it's http://
                     if (resolved != '' and string_copy(resolved, 1, 7) == 'http://')
                     {
                         // Restart request
-                        _httpClientDestroy();
-                        _httpPrepareRequest(client, resolved, requestHeaders);
+                        __fcthttp_client_destroy();
+                        __fcthttp_prepare_request(client, resolved, requestHeaders);
                     }
                     else
                     {
                         errored = true;
                         error = "301, 302, 303 or 307 response with invalid or unsupported Location URL ('" + location +  "') - can't redirect";
-                        return _httpClientDestroy();
+                        return __fcthttp_client_destroy();
                     }
                     exit;
                 }
@@ -829,7 +830,7 @@ with (client)
                 {
                     errored = true;
                     error = "301, 302, 303 or 307 response without Location header - can't redirect";
-                    return _httpClientDestroy();
+                    return __fcthttp_client_destroy();
                 }
             }
             else
@@ -842,9 +843,9 @@ with (client)
     }
 }
 
-#define httpRequestStatus
+#define fcthttp_request_status
 // Gets the current status of an HTTP request
-// real httpRequestStatus(real client)
+// real fcthttp_request_status(real client)
 
 // client - HttpClient object
 
@@ -866,25 +867,25 @@ else if (client.state == 2)
 else
     return 0;
 
-#define httpRequestError
+#define fcthttp_request_error
 // Gets the error message of an HTTP request
-// string httpRequestError(real client)
+// string fcthttp_request_error(real client)
 
 // client - HttpClient object
 
 // Return value is a string describing the error
 
 // This is *not* the "error message" accompanying the status code.
-// See httpRequestReasonPhrase for that
+// See fcthttp_request_reason_phrase for that
 
 var client;
 client = argument0;
 
 return client.error;
 
-#define httpRequestStatusCode
+#define fcthttp_request_status_code
 // Gets the status code returned by an HTTP request
-// real httpRequestStatusCode(real client)
+// real fcthttp_request_status_code(real client)
 
 // client - HttpClient object
 
@@ -903,9 +904,9 @@ client = argument0;
 
 return client.statusCode;
 
-#define httpRequestReasonPhrase
+#define fcthttp_request_reason_phrase
 // Gets the reason phrase returned by an HTTP request
-// string httpRequestSeasonPhrase(real client)
+// string fcthttp_request_reason_phrase(real client)
 
 // client - HttpClient object
 
@@ -924,9 +925,9 @@ client = argument0;
 
 return client.reasonPhrase;
 
-#define httpRequestResponseBody
+#define fcthttp_request_response_body
 // Gets the response body returned by an HTTP request as a buffer
-// real httpRequestResponseBody(real client)
+// real fcthttp_request_response_body(real client)
 
 // client - HttpClient object
 
@@ -937,9 +938,9 @@ client = argument0;
 
 return client.responseBody;
 
-#define httpRequestResponseBodySize
+#define fcthttp_request_response_body_size
 // Gets the size of response body returned by an HTTP request
-// real httpRequestResponseBodySize(real client)
+// real fcthttp_request_response_body_size(real client)
 
 // client - HttpClient object
 
@@ -952,9 +953,9 @@ client = argument0;
 
 return client.responseBodySize;
 
-#define httpRequestResponseBodyProgress
+#define fcthttp_request_response_body_progress
 // Gets the size of response body returned by an HTTP request which is so far downloaded 
-// real httpRequestResponseBodyProgress(real client)
+// real fcthttp_request_response_body_progress(real client)
 
 // client - HttpClient object
 
@@ -965,9 +966,9 @@ client = argument0;
 
 return client.responseBodyProgress;
 
-#define httpRequestResponseHeaders
+#define fcthttp_request_response_headers
 // Gets the response headers returned by an HTTP request as a ds_map
-// real httpRequestResponseHeaders(real client)
+// real fcthttp_request_response_headers(real client)
 
 // client - HttpClient object
 
@@ -982,9 +983,9 @@ client = argument0;
 
 return client.responseHeaders;
 
-#define httpRequestDestroy
+#define fcthttp_request_response_destroy
 // Cleans up HttpClient
-// void httpRequestResponseBody(real client)
+// void fcthttp_request_response_destroy(real client)
 
 // client - HttpClient object
 
@@ -993,7 +994,7 @@ client = argument0;
 
 with (client)
 {
-    _httpClientDestroy();
+    __fcthttp_client_destroy();
     instance_destroy();
 }
 
