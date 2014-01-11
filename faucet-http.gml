@@ -1,14 +1,105 @@
-#define __fcthttp_init
-// Internal function - creates HttpClient object type
-// void __fcthttp_init()
-// Called by GM when extension loaded
+#define __http_init
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Creates global.__HttpClient
+// real __http_init()
 
 global.__HttpClient = object_add();
 object_set_persistent(global.__HttpClient, true);
 
-#define fcthttp_parse_url
+#define __http_split
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// real __http_split(string text, delimeter delimeter, real limit)
+// Splits string into items
+
+// text - string comma-separated values
+// delimeter - delimeter to split by
+// limit  if non-zero, maximum times to split text
+// When limited, the remaining text will be left as the last item.
+// E.g. splitting "1,2,3,4,5" with delimeter "," and limit 2 yields this list:
+// "1", "2", "3,4,5"
+
+// return value - ds_list containing strings of values
+
+var text, delimeter, limit;
+text = argument0;
+delimeter = argument1;
+limit = argument2;
+
+var list, count;
+list = ds_list_create();
+count = 0;
+
+while (string_pos(delimeter, text) != 0)
+{
+    ds_list_add(list, string_copy(text, 1, string_pos(delimeter,text) - 1));
+    text = string_copy(text, string_pos(delimeter, text) + string_length(delimeter), string_length(text) - string_pos(delimeter, text));
+
+    count += 1;
+    if (limit and count == limit)
+        break;
+}
+ds_list_add(list, text);
+
+return list;
+
+#define __http_parse_url
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Parses a URL into its components
-// real fcthttp_parse_url(string url)
+// real __http_parse_url(string url)
 
 // Return value is a ds_map containing keys for the different URL parts: (or -1 on failure)
 // "url" - the URL which was passed in
@@ -120,14 +211,33 @@ else
 ds_map_destroy(map);
 return -1;
 
-#define fcthttp_resolve_url
+#define __http_resolve_url
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Takes a base URL and a URL reference and applies it to the base URL
 // Returns resulting absolute URL
-// string fcthttp_resolve_url(string baseUrl, string refUrl)
+// string __http_resolve_url(string baseUrl, string refUrl)
 
 // Return value is a string containing the new absolute URL, or "" on failure
 
-// Works only for restricted URL syntax as understood by by fcthttp_resolve_url
+// Works only for restricted URL syntax as understood by by http_resolve_url
 // The sole restriction of which is that only scheme://authority/path URLs work
 // This notably excludes file: URLs which lack the authority component
 
@@ -138,7 +248,7 @@ return -1;
 //                    / path-absolute
 //                    / path-noscheme
 //                    / path-empty
-// However fcthttp_resolve_url does *not* deal with fragments
+// However http_resolve_url does *not* deal with fragments
 
 // Algorithm based on that of section 5.2.2 of RFC 3986
 
@@ -148,13 +258,13 @@ refUrl = argument1;
 
 // Parse base URL
 var urlParts;
-urlParts = fcthttp_parse_url(baseUrl);
+urlParts = __http_parse_url(baseUrl);
 if (urlParts == -1)
     return '';
 
 // Try to parse reference URL
 var refUrlParts, canParseRefUrl;
-refUrlParts = fcthttp_parse_url(refUrl);
+refUrlParts = __http_parse_url(refUrl);
 canParseRefUrl = (refUrlParts != -1);
 if (refUrlParts != -1)
     ds_map_destroy(refUrlParts);
@@ -183,7 +293,7 @@ else if (((string_char_at(refUrl, 1) == '/' and string_length(refUrl) > 1) or re
     // No query
     if (queryPos == 0)
     {
-        refUrl = fcthttp_resolve_path(ds_map_find_value(urlParts, 'abs_path'), refUrl);
+        refUrl = __http_resolve_path(ds_map_find_value(urlParts, 'abs_path'), refUrl);
         ds_map_replace(urlParts, 'abs_path', refUrl);
         if (ds_map_exists(urlParts, 'query'))
             ds_map_delete(urlParts, 'query');
@@ -194,23 +304,42 @@ else if (((string_char_at(refUrl, 1) == '/' and string_length(refUrl) > 1) or re
         var path, query;
         path = string_copy(refUrl, 1, queryPos - 1);
         query = string_copy(refUrl, queryPos + 1, string_length(relUrl) - queryPos);
-        path = fcthttp_resolve_path(ds_map_find_value(urlParts, 'abs_path'), path);
+        path = __http_resolve_path(ds_map_find_value(urlParts, 'abs_path'), path);
         ds_map_replace(urlParts, 'abs_path', path);
         if (ds_map_exists(urlParts, 'query'))
             ds_map_replace(urlParts, 'query', query);
         else
             ds_map_add(urlParts, 'query', query);
     }
-    result = fcthttp_construct_url(urlParts);
+    result = __http_construct_url(urlParts);
 }
 
 ds_map_destroy(urlParts);
 return result;
 
-#define fcthttp_resolve_path
+#define __http_resolve_path
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Takes a base path and a path reference and applies it to the base path
 // Returns resulting absolute path
-// string fcthttp_resolve_path(string basePath, string refPath)
+// string __http_resolve_path(string basePath, string refPath)
 
 // Return value is a string containing the new absolute path
 
@@ -229,8 +358,8 @@ if (string_char_at(refPath, 1) == '/')
 }
 
 var parts, refParts;
-parts = split(basePath, '/');
-refParts = split(refPath, '/');
+parts = __http_split(basePath, '/', 0);
+refParts = __http_split(refPath, '/', 0);
 
 if (refPath != '')
 {
@@ -304,9 +433,28 @@ for (i = 0; i < ds_list_size(parts); i += 1)
 ds_map_destroy(parts);
 return path;
 
-#define fcthttp_parse_hex
+#define __http_parse_hex
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Takes a lowercase hexadecimal string and returns its integer value
-// real fcthttp_parse_hex(string hexString)
+// real __http_parse_hex(string hexString)
 
 // Return value is the whole number value (or -1 if invalid)
 // Only works for whole numbers (non-fractional numbers >= 0) and lowercase hex
@@ -330,9 +478,28 @@ for (i = 1; i <= string_length(hexString); i += 1) {
 
 return result;
 
-#define fcthttp_construct_url
-// Constructs an URL from its components (as fcthttp_parse_url would return)
-// string fcthttp_construct_url(real parts)
+#define __http_construct_url
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Constructs an URL from its components (as http_parse_url would return)
+// string __http_construct_url(real parts)
 
 // Return value is the string of the constructed URL
 // Keys of parts map:
@@ -370,34 +537,32 @@ if (ds_map_exists(parts, 'abs_path'))
 
 return url;
 
-#define fcthttp_get
-// Makes a GET HTTP request
-// real fcthttp_get(string url, real headers)
+#define __http_prepare_request
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
 
-// url - URL to send GET request to
-// headers - ds_map of extra headers to send, -1 if none
-
-// Return value is an HttpClient instance that can be passed to
-// fct_http_request_status etc.
-// (errors on failure to parse URL)
-
-var url, headers, client;
-
-url = argument0;
-headers = argument1;
-
-client = instance_create(0, 0, global.__HttpClient);
-__fcthttp_prepare_request(client, url, headers);
-return client;
-
-#define __fcthttp_prepare_request
 // Internal function - prepares request
-// void __fcthttp_prepare_request(real client, string url, real headers)
+// void __http_prepare_request(real client, string url, real headers)
 
 // client - HttpClient object to prepare
 // url - URL to send GET request to
 // headers - ds_map of extra headers to send, -1 if none
-
 
 var client, url, headers;
 client = argument0;
@@ -405,7 +570,7 @@ url = argument1;
 headers = argument2;
 
 var parsed;
-parsed = fcthttp_parse_url(url);
+parsed = __http_parse_url(url);
 
 if (parsed == -1)
     show_error("Error when making HTTP GET request - can't parse URL: " + url, true);
@@ -490,9 +655,28 @@ with (client)
     ds_map_destroy(parsed);
 }
 
-#define __fcthttp_parse_header
+#define __http_parse_header
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Internal function - parses header
-// real __fcthttp_parse_header(string linebuf, real line)
+// real __http_parse_header(string linebuf, real line)
 // Returns false if it errored (caller should return and destroy)
 
 var linebuf, line;
@@ -547,21 +731,27 @@ if (string_lower(headerName) == 'content-length')
 
 return true;
 
-#define __fcthttp_client_destroy
-// Clears up contents of an httpClient prior to destruction or after error
+#define __http_client_step
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
 
-if (!destroyed) {
-    socket_destroy(socket);
-    buffer_destroy(responseBody);
-    ds_map_destroy(responseHeaders);
-}
-destroyed = true;
-
-#define fcthttp_request_step
-// Steps the HTTP request (you need to call this each step or so)
-// void fcthttp_request_step(real client)
-
-// client - HttpClient object
+// Steps the HTTP client (needs to be called each step or so)
 
 var client;
 client = argument0;
@@ -576,7 +766,7 @@ with (client)
     {
         errored = true;
         error = "Socket error: " + socket_error(socket);
-        return __fcthttp_client_destroy();
+        return __http_client_destroy();
     }
     
     var available;
@@ -586,6 +776,13 @@ with (client)
     {
     // Receiving lines
     case 0:
+        if (!available && tcp_eof(socket))
+        {
+            errored = true;
+            error = "Unexpected EOF when receiving headers/status code";
+            return __http_client_destroy();
+        }
+    
         var bytesRead, c;
         for (bytesRead = 1; bytesRead <= available; bytesRead += 1)
         {
@@ -611,7 +808,7 @@ with (client)
                     {
                         errored = true;
                         error = "No space in first line of response";
-                        return __fcthttp_client_destroy();
+                        return __http_client_destroy();
                     }
                     httpVer = string_copy(linebuf, 1, spacePos);
                     linebuf = string_copy(linebuf, spacePos + 1, string_length(linebuf) - spacePos);
@@ -621,7 +818,7 @@ with (client)
                     {
                         errored = true;
                         error = "No second space in first line of response";
-                        return __fcthttp_client_destroy();
+                        return __http_client_destroy();
                     }
                     statusCode = real(string_copy(linebuf, 1, spacePos));
                     reasonPhrase = string_copy(linebuf, spacePos + 1, string_length(linebuf) - spacePos);
@@ -641,8 +838,8 @@ with (client)
                     // Header
                     else
                     {
-                        if (!__fcthttp_parse_header(linebuf, line))
-                            return __fcthttp_client_destroy();
+                        if (!__http_parse_header(linebuf, line))
+                            return __http_client_destroy();
                     }
                 }
     
@@ -706,7 +903,7 @@ with (client)
                                 errored = true;
                                 error = 'header of chunk in chunked transfer did not end in CRLF';
                                 buffer_destroy(actualResponseBody);
-                                return __fcthttp_client_destroy();
+                                return __http_client_destroy();
                             }
                             // chunk-size is empty - something's up!
                             if (chunkSize == '')
@@ -714,16 +911,16 @@ with (client)
                                 errored = true;
                                 error = 'empty chunk-size in a chunked transfer';
                                 buffer_destroy(actualResponseBody);
-                                return __fcthttp_client_destroy();
+                                return __http_client_destroy();
                             }
-                            chunkSize = fcthttp_parse_hex(chunkSize);
+                            chunkSize = __http_parse_hex(chunkSize);
                             // Parsing of size failed - not hex?
                             if (chunkSize == -1)
                             {
                                 errored = true;
                                 error = 'chunk-size was not hexadecimal in a chunked transfer';
                                 buffer_destroy(actualResponseBody);
-                                return __fcthttp_client_destroy();
+                                return __http_client_destroy();
                             }
                             // Is the chunk bigger than the remaining response?
                             if (chunkSize + 2 > buffer_bytes_left(responseBody))
@@ -731,7 +928,7 @@ with (client)
                                 errored = true;
                                 error = 'chunk-size was greater than remaining data in a chunked transfer';
                                 buffer_destroy(actualResponseBody);
-                                return __fcthttp_client_destroy();
+                                return __http_client_destroy();
                             }
                             // OK, everything's good, read the chunk
                             write_buffer_part(actualResponseBody, responseBody, chunkSize);
@@ -741,14 +938,14 @@ with (client)
                             {
                                 errored = true;
                                 error = 'chunk did not end in CRLF in a chunked transfer';
-                                return __fcthttp_client_destroy();
+                                return __http_client_destroy();
                             }
                         }
                         else
                         {
                             errored = true;
                             error = 'did not find CR after reading chunk header in a chunked transfer, Faucet HTTP bug?';
-                            return __fcthttp_client_destroy();
+                            return __http_client_destroy();
                         }
                         // if the chunk size is zero, then it was the last chunk
                         if (chunkSize == 0
@@ -775,10 +972,10 @@ with (client)
                                 {
                                     errored = true;
                                     error = 'trailer header did not end in CRLF in a chunked transfer';
-                                    return __fcthttp_client_destroy();
+                                    return __http_client_destroy();
                                 }
-                                if (!__fcthttp_parse_header(linebuf, line))
-                                    return __fcthttp_client_destroy();
+                                if (!__http_parse_header(linebuf, line))
+                                    return __http_client_destroy();
                                 line += 1;
                             }
                         }
@@ -791,7 +988,7 @@ with (client)
                 {
                     errored = true;
                     error = 'Unsupported Transfer-Encoding: "' + ds_map_find_value(responseHaders, 'transfer-encoding') + '"';
-                    return __fcthttp_client_destroy();
+                    return __http_client_destroy();
                 }
             }
             else if (responseBodySize != -1)
@@ -800,7 +997,7 @@ with (client)
                 {
                     errored = true;
                     error = "Unexpected EOF, response body size is less than expected";
-                    return __fcthttp_client_destroy();
+                    return __http_client_destroy();
                 }
             }
             // 301 Moved Permanently/302 Found/303 See Other/307 Moved Temporarily
@@ -810,19 +1007,19 @@ with (client)
                 {
                     var location, resolved;
                     location = ds_map_find_value(responseHeaders, 'location');
-                    resolved = fcthttp_resolve_url(requestUrl, location);
+                    resolved = __http_resolve_url(requestUrl, location);
                     // Resolving URL didn't fail and it's http://
                     if (resolved != '' and string_copy(resolved, 1, 7) == 'http://')
                     {
                         // Restart request
-                        __fcthttp_client_destroy();
-                        __fcthttp_prepare_request(client, resolved, requestHeaders);
+                        __http_client_destroy();
+                        __http_prepare_request(client, resolved, requestHeaders);
                     }
                     else
                     {
                         errored = true;
                         error = "301, 302, 303 or 307 response with invalid or unsupported Location URL ('" + location +  "') - can't redirect";
-                        return __fcthttp_client_destroy();
+                        return __http_client_destroy();
                     }
                     exit;
                 }
@@ -830,7 +1027,7 @@ with (client)
                 {
                     errored = true;
                     error = "301, 302, 303 or 307 response without Location header - can't redirect";
-                    return __fcthttp_client_destroy();
+                    return __http_client_destroy();
                 }
             }
             else
@@ -843,53 +1040,244 @@ with (client)
     }
 }
 
-#define fcthttp_request_status
-// Gets the current status of an HTTP request
-// real fcthttp_request_status(real client)
+#define __http_client_destroy
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Clears up contents of an httpClient prior to destruction or after error
+
+if (!destroyed) {
+    socket_destroy(socket);
+    buffer_destroy(responseBody);
+    ds_map_destroy(responseHeaders);
+}
+destroyed = true;
+
+#define http_new_get
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Makes a GET HTTP request
+// real http_new_get(string url)
+
+// url - URL to send GET request to
+
+// Return value is an HttpClient instance that can be passed to
+// fct_http_request_status etc.
+// (errors on failure to parse URL)
+
+var url, client;
+
+url = argument0;
+
+if (!variable_global_exists('__HttpClient'))
+    __http_init();
+
+client = instance_create(0, 0, global.__HttpClient);
+__http_prepare_request(client, url, -1);
+return client;
+
+#define http_new_get_ex
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Makes a GET HTTP request with custom headers
+// real http_new_get_ex(string url, real headers)
+
+// url - URL to send GET request to
+// headers - ds_map of extra headers to send
+
+// Return value is an HttpClient instance that can be passed to
+// fct_http_request_status etc.
+// (errors on failure to parse URL)
+
+var url, headers, client;
+
+url = argument0;
+headers = argument1;
+
+if (!variable_global_exists('__HttpClient'))
+    __http_init();
+
+client = instance_create(0, 0, global.__HttpClient);
+__http_prepare_request(client, url, headers);
+return client;
+
+#define http_step
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Steps the HTTP client. This is what makes everything actually happen.
+// Call it each step. Returns whether or not the request has finished.
+// real http_step(real client)
 
 // client - HttpClient object
 
 // Return value is either:
 // 0 - In progress
-// 1 - Done
-// 2 - Errored
+// 1 - Done or Errored
 
-// The status being 1 and not 2 does not mean the request was successful
-// So check the status code. If it is 2, it simply means there was a different error.
+// Example usage:
+// req = http_new_get("http://example.com/x.txt");
+// while (http_step(req)) {}
+// if (http_status_code(req) != 200) {
+//     // Errored!
+// } else {
+//     // Hasn't errored, do stuff here.
+// }
+
+var client;
+client = argument0;
+
+__http_client_step(client);
+
+if (client.errored || client.state == 2)
+    return 1;
+else
+    return 0;
+
+#define http_status_code
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Gets the status code
+// real http_status_code(real client)
+
+// client - HttpClient object
+
+// Return value is either:
+// * 0, if the request has not yet finished
+// * a negative value, if there was an internal Faucet HTTP error
+// * a positive value, the status code of the HTTP request
+
+// "The Status-Code element is a 3-digit integer result code of the
+// attempt to understand and satisfy the request. These codes are fully
+// defined in section 10. The Reason-Phrase is intended to give a short
+// textual description of the Status-Code. The Status-Code is intended
+// for use by automata and the Reason-Phrase is intended for the human
+// user. The client is not required to examine or display the Reason-
+// Phrase."
+
+// See also: http_reason_phrase, gets the Reason-Phrase
 
 var client;
 client = argument0;
 
 if (client.errored)
-    return 2;
+    return -1;
 else if (client.state == 2)
-    return 1;
+    return client.statusCode;
 else
     return 0;
 
-#define fcthttp_request_error
-// Gets the error message of an HTTP request
-// string fcthttp_request_error(real client)
+#define http_reason_phrase
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
+// Gets the reason phrase
+// string http_reason_phrase(real client)
 
 // client - HttpClient object
-
-// Return value is a string describing the error
-
-// This is *not* the "error message" accompanying the status code.
-// See fcthttp_request_reason_phrase for that
-
-var client;
-client = argument0;
-
-return client.error;
-
-#define fcthttp_request_status_code
-// Gets the status code returned by an HTTP request
-// real fcthttp_request_status_code(real client)
-
-// client - HttpClient object
-
-// Return value is either the status code of the request, or -1 if errored/not done yet
+// Return value is either:
+// * "", if the request has not yet finished
+// * an internal Faucet HTTP error message, if there was one
+// * the reason phrase of the HTTP request
 
 // "The Status-Code element is a 3-digit integer result code of the
 // attempt to understand and satisfy the request. These codes are fully
@@ -899,35 +1287,40 @@ return client.error;
 // user. The client is not required to examine or display the Reason-
 // Phrase."
 
-var client;
-client = argument0;
-
-return client.statusCode;
-
-#define fcthttp_request_reason_phrase
-// Gets the reason phrase returned by an HTTP request
-// string fcthttp_request_reason_phrase(real client)
-
-// client - HttpClient object
-
-// Return value is either the reason phrase of the request, or "" if errored/not done yet
-
-// "The Status-Code element is a 3-digit integer result code of the
-// attempt to understand and satisfy the request. These codes are fully
-// defined in section 10. The Reason-Phrase is intended to give a short
-// textual description of the Status-Code. The Status-Code is intended
-// for use by automata and the Reason-Phrase is intended for the human
-// user. The client is not required to examine or display the Reason-
-// Phrase."
+// See also: http_status_code, gets the Status-Code
 
 var client;
 client = argument0;
 
-return client.reasonPhrase;
+if (client.errored)
+    return client.error;
+else if (client.state == 2)
+    return client.reasonPhrase;
+else
+    return "";
 
-#define fcthttp_request_response_body
+#define http_response_body
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Gets the response body returned by an HTTP request as a buffer
-// real fcthttp_request_response_body(real client)
+// real http_response_body(real client)
 
 // client - HttpClient object
 
@@ -938,9 +1331,28 @@ client = argument0;
 
 return client.responseBody;
 
-#define fcthttp_request_response_body_size
+#define http_response_body_size
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Gets the size of response body returned by an HTTP request
-// real fcthttp_request_response_body_size(real client)
+// real http_response_body_size(real client)
 
 // client - HttpClient object
 
@@ -953,9 +1365,28 @@ client = argument0;
 
 return client.responseBodySize;
 
-#define fcthttp_request_response_body_progress
+#define http_response_body_progress
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Gets the size of response body returned by an HTTP request which is so far downloaded 
-// real fcthttp_request_response_body_progress(real client)
+// real http_response_body_progress(real client)
 
 // client - HttpClient object
 
@@ -966,9 +1397,28 @@ client = argument0;
 
 return client.responseBodyProgress;
 
-#define fcthttp_request_response_headers
+#define http_response_headers
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Gets the response headers returned by an HTTP request as a ds_map
-// real fcthttp_request_response_headers(real client)
+// real http_response_headers(real client)
 
 // client - HttpClient object
 
@@ -983,9 +1433,28 @@ client = argument0;
 
 return client.responseHeaders;
 
-#define fcthttp_request_response_destroy
+#define http_destroy
+// ***
+// This function forms part of Faucet HTTP v1.0
+// https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
+// 
+// Copyright (c) 2013-2014, Andrea Faulds <ajf@ajf.me>
+// 
+// Permission to use, copy, modify, and/or distribute this software for any
+// purpose with or without fee is hereby granted, provided that the above
+// copyright notice and this permission notice appear in all copies.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+// ***
+
 // Cleans up HttpClient
-// void fcthttp_request_response_destroy(real client)
+// void http_destroy(real client)
 
 // client - HttpClient object
 
@@ -994,7 +1463,7 @@ client = argument0;
 
 with (client)
 {
-    __fcthttp_client_destroy();
+    __http_client_destroy();
     instance_destroy();
 }
 
