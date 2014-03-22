@@ -1183,7 +1183,7 @@ return client;
 
 // Example usage:
 // req = http_new_get("http://example.com/x.txt");
-// while (http_step(req)) {}
+// while (!http_step(req)) {}
 // if (http_status_code(req) != 200) {
 //     // Errored!
 // } else {
