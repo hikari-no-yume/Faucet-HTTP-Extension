@@ -303,7 +303,7 @@ else if (((string_char_at(refUrl, 1) == '/' and string_length(refUrl) > 1) or re
     {
         var path, query;
         path = string_copy(refUrl, 1, queryPos - 1);
-        query = string_copy(refUrl, queryPos + 1, string_length(relUrl) - queryPos);
+        query = string_copy(refUrl, queryPos + 1, string_length(refUrl) - queryPos);
         path = __http_resolve_path(ds_map_find_value(urlParts, 'abs_path'), path);
         ds_map_replace(urlParts, 'abs_path', path);
         if (ds_map_exists(urlParts, 'query'))
