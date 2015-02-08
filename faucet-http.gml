@@ -650,7 +650,6 @@ with (client)
     {
         write_string(socket, 'Content-Length: ' + string(buffer_size(requestBody)) + CRLF);
         write_string(socket, 'Content-Type: ' + requestBodyMimeType + CRLF);
-    
     }
         
     // If headers specified
