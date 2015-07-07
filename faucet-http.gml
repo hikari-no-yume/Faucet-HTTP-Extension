@@ -558,7 +558,7 @@ return url;
 // ***
 
 // Internal function - prepares request
-// void __http_prepare_request(real client, string url, real headers)
+// void __http_prepare_request(real client, string method, string url, real headers, [real requestBody, string requestMimeType])
 
 // client - HttpClient object to prepare
 // method - method of request ('GET' or 'POST')
@@ -1033,7 +1033,7 @@ with (client)
                     {
                         // Restart request
                         __http_client_destroy();
-                        __http_prepare_request(client, resolved, requestHeaders);
+                        __http_prepare_request(client, 'GET', resolved, requestHeaders);
                     }
                     else
                     {
