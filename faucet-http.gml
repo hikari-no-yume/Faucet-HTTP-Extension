@@ -1,6 +1,6 @@
 #define __http_init
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -26,7 +26,7 @@ object_set_persistent(global.__HttpClient, true);
 
 #define __http_split
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -80,7 +80,7 @@ return list;
 
 #define __http_parse_url
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -213,7 +213,7 @@ return -1;
 
 #define __http_resolve_url
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -319,7 +319,7 @@ return result;
 
 #define __http_resolve_path
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -435,7 +435,7 @@ return path;
 
 #define __http_parse_hex
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -480,7 +480,7 @@ return result;
 
 #define __http_construct_url
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -539,7 +539,7 @@ return url;
 
 #define __http_prepare_request
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -677,7 +677,7 @@ with (client)
 
 #define __http_parse_header
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -753,7 +753,7 @@ return true;
 
 #define __http_client_step
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1062,7 +1062,7 @@ with (client)
 
 #define __http_client_destroy
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1091,7 +1091,7 @@ destroyed = true;
 
 #define http_new_get
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1131,7 +1131,7 @@ return client;
 
 #define http_new_get_ex
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1173,7 +1173,7 @@ return client;
 
 #define http_new_post
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1217,7 +1217,7 @@ return client;
 
 #define http_new_post_ex
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1263,7 +1263,7 @@ return client;
 
 #define http_step
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1312,7 +1312,7 @@ else
 
 #define http_status_code
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1362,7 +1362,7 @@ else
 
 #define http_reason_phrase
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1411,7 +1411,7 @@ else
 
 #define http_response_body
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1443,7 +1443,7 @@ return client.responseBody;
 
 #define http_response_body_size
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1480,7 +1480,7 @@ return client.responseBodySize;
 
 #define http_response_body_progress
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1512,7 +1512,7 @@ return client.responseBodyProgress;
 
 #define http_response_headers
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
@@ -1548,7 +1548,7 @@ return client.responseHeaders;
 
 #define http_destroy
 // ***
-// This function forms part of Faucet HTTP v1.1
+// This function forms part of Faucet HTTP v1.1.1
 // https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension
 // 
 // Copyright (c) 2013-2015, Andrea Faulds <ajf@ajf.me>
