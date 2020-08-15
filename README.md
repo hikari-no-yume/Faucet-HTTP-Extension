@@ -12,7 +12,7 @@ file.
 The primary advantage of Faucet HTTP is its simplicity and its integration with
 Faucet Networking. Response bodies are returned as Faucet Networking buffers,
 for example. Faucet HTTP is written in GML, not as a DLL, which means that you
-can hopefully find bugs in my code more easily ;), but also that it can use
+can hopefully find bugs in my code more easily 😉, but also that it can use
 native GML data types. For example response headers and request headers just use
 a plain `ds_map`.
 
@@ -28,13 +28,9 @@ can import that file into Game Maker as a set of scripts for easier reading.
 
 Full documentation in future, perhaps? :D
 
-As for using it in GM, download it along with Faucet Networking ([here]
-(https://github.com/Medo42/Faucet-Networking-Extension/releases)), make sure you
-install Faucet Networking first, then go to Scripts->Import Scripts... and
+As for using it in Game Maker, [download it](https://github.com/hikari-no-yume/Faucet-HTTP-Extension/releases) along with [Faucet Networking](https://github.com/Medo42/Faucet-Networking-Extension/releases), make sure you
+install Faucet Networking first, then go to Scripts &gt; Import Scripts… and
 choose the faucet-http.gml file.
-
-Can be downloaded here:
-https://github.com/TazeTSchnitzel/Faucet-HTTP-Extension/releases
 
 Version 1.0 should be largely stable.
 
